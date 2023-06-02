@@ -64,6 +64,10 @@ public class Log {
                 return;
             case STD_ERR:
                 System.err.print(out);
+            case FILE_ONLY:
+                break;
+            default:
+                break;
         }
     }
 

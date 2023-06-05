@@ -2,6 +2,8 @@ package com.github.rinkore1.iiyokoiyo.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,21 +17,22 @@ public class Log {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static Writer fileWriter;
 
-    public static void setApplicationLogFile(Path ApplicationDir) throws IOException {
-        Path LogsDir = Paths.get(ApplicationDir + File.separator + "logs");
-        Path LogsFile = Paths.get(LogsDir + File.separator + "lastest.log");
+    public static void setApplicationLogFile(Path applicationDir) throws IOException {
+        Path logsDir = Paths.get(applicationDir + File.separator + "logs");
+        Path logsFile = Paths.get(logsDir + File.separator + "lastest.log");
 
-        if(!Files.exists(LogsDir)){
-            Files.createDirectories(LogsDir);
+        if (!Files.exists(logsDir)) {
+            Files.createDirectories(logsDir);
         }
 
-        setLogFile(ApplicationDir.resolve(LogsFile));
+        setLogFile(applicationDir.resolve(logsFile));
     }
-    public static void setLogFile(Path path){
-        try{
+
+    public static void setLogFile(Path path) {
+        try {
             fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
-        }catch (Exception e){
-            System.err.printf("ERROR setting log file %s%n\r\n",e);
+        } catch (Exception e) {
+            System.err.printf("ERROR setting log file %s%n\r\n", e);
         }
     }
 
@@ -48,14 +51,20 @@ public class Log {
         STD_ERR
     }
 
-    private static void log(Level level, String message) {
-        String out = String.format("[%s] [%s]: %s\r\n", DATE_FORMAT.format(new Date()), level.name(), message);
+    private static void log(Level level, String message, Throwable throwable) {
+        String out = String.format("[%s] [%s]: %s%n", DATE_FORMAT.format(new Date()), level.name(), message);
+        if (throwable != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            throwable.printStackTrace(pw);
+            out += sw.toString();
+        }
         if (fileWriter != null) {
             try {
                 fileWriter.write(out);
                 fileWriter.flush();
             } catch (Exception e) {
-                System.err.printf("Error writing log: %s%n\r\n", e);
+                System.err.printf("Error writing log: %s%n", e);
             }
         }
         switch (level.out) {
@@ -64,23 +73,23 @@ public class Log {
                 return;
             case STD_ERR:
                 System.err.print(out);
-            case FILE_ONLY:
-                break;
-            default:
-                break;
         }
     }
 
     public static void debug(String message) {
-        log(Level.DEBUG, message);
+        log(Level.DEBUG, message, null);
     }
 
     public static void debug(String format, Object... args) {
         debug(String.format(format, args));
     }
 
+    public static void debug(String message, Throwable throwable) {
+        log(Level.DEBUG, message, throwable);
+    }
+
     public static void info(String message) {
-        log(Level.INFO, message);
+        log(Level.INFO, message, null);
     }
 
     public static void info(String format, Object... args) {
@@ -88,11 +97,14 @@ public class Log {
     }
 
     public static void warning(String message) {
-        log(Level.WARNING, message);
+        log(Level.WARNING, message, null);
     }
 
     public static void warning(String format, Object... args) {
         warning(String.format(format, args));
     }
 
+    public static void warning(String message, Throwable throwable) {
+        log(Level.WARNING, message, throwable);
+    }
 }

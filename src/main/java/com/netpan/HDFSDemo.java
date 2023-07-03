@@ -27,7 +27,7 @@ public class HDFSDemo {
 
         FileSystem fileSystem = FileSystem.get(uri, configuration, user);
 
-        fileSystem.mkdirs(new Path("/est/it"));
+        fileSystem.mkdirs(new Path("/Ast/it"));
 
         fileSystem.close();
     }

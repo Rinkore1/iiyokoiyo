@@ -22,7 +22,7 @@ public class OfficeToSwf {
 			File sourceFile = new File(generalFile);
 			File targetFile = new File(pdfFile);
 
-			if (sourceFile.exists()) {
+			if (!sourceFile.exists()) {
 				return;
 			}
 			if (targetFile.exists()) {

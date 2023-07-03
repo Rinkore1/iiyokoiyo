@@ -22,9 +22,10 @@ import com.netpan.entity.User;
 @Repository("hdfsDao")
 public class HdfsDao {
 	private final String basePath = "/OnlineDisk/";
-	
+
 	/**
 	 * 获得在hdfs中的目录
+	 * 
 	 * @param file
 	 * @param user
 	 * @return
@@ -32,9 +33,10 @@ public class HdfsDao {
 	private String formatPathMethod(User user, File file) {
 		return basePath + user.getName() + file.getPath();
 	}
-	
+
 	/**
 	 * 上传文件
+	 * 
 	 * @param inputStream
 	 * @param file
 	 * @param user
@@ -52,12 +54,13 @@ public class HdfsDao {
 			System.out.println(9);
 			IOUtils.copyBytes(inputStream, outputStream, 2048, true);
 		} catch (Exception e) {
-		   throw e;
+			throw e;
 		}
 	}
-	
+
 	/**
 	 * 创建文件夹
+	 * 
 	 * @param file
 	 * @param user
 	 */
@@ -73,9 +76,10 @@ public class HdfsDao {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 删除文件或目录
+	 * 
 	 * @param file
 	 * @param user
 	 */
@@ -91,9 +95,10 @@ public class HdfsDao {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 重命名文件，未使用
+	 * 
 	 * @param file
 	 * @param user
 	 * @param newname
@@ -112,9 +117,10 @@ public class HdfsDao {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 下载文件
+	 * 
 	 * @param user
 	 * @param file
 	 * @param local
@@ -137,12 +143,13 @@ public class HdfsDao {
 		return false;
 	}
 
-	public ResponseEntity<InputStreamResource>  download(User user, File file) {
+	public ResponseEntity<InputStreamResource> download(User user, File file) {
 		try {
 			String formatPath = formatPathMethod(user, file);
 			if (HdfsConn.getFileSystem().exists(new Path(formatPath))) {
 				FSDataInputStream inputStream = HdfsConn.getFileSystem().open(new Path(formatPath));
-				ResponseEntity<InputStreamResource> result = ExportUtil.downloadFile(inputStream, file.getOriginalName());
+				ResponseEntity<InputStreamResource> result = ExportUtil.downloadFile(inputStream,
+						file.getOriginalName());
 				return result;
 			}
 		} catch (IllegalArgumentException e) {
@@ -152,9 +159,10 @@ public class HdfsDao {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 复制或者移动文件或者目录
+	 * 
 	 * @param user
 	 * @param sourceFile
 	 * @param destFile
@@ -164,13 +172,13 @@ public class HdfsDao {
 		try {
 			String sourceFormatPath = formatPathMethod(user, sourceFile);
 			String destFormatPath = formatPathMethod(user, destFile);
-			FileUtil.copy(HdfsConn.getFileSystem(), new Path(sourceFormatPath), HdfsConn.getFileSystem(), new Path(destFormatPath), flag, true, HdfsConn.getConfiguration());
+			FileUtil.copy(HdfsConn.getFileSystem(), new Path(sourceFormatPath), HdfsConn.getFileSystem(),
+					new Path(destFormatPath), flag, true, HdfsConn.getConfiguration());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 }

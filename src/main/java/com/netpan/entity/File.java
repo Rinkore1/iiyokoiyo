@@ -9,10 +9,10 @@ public class File {
 	private String size; // 经转换的文件大小字符串
 	private String path; // 文件路径
 	private String date;
-	
+
 	private String type;
 	private String viewflag;
-	
+
 	private String originalPath;
 
 	public long getId() {
@@ -108,5 +108,5 @@ public class File {
 	public void setOriginalPath(String originalPath) {
 		this.originalPath = originalPath;
 	}
-	
+
 }

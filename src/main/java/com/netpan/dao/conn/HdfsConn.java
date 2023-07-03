@@ -8,7 +8,7 @@ import org.apache.hadoop.fs.FileSystem;
 public class HdfsConn {
 	private FileSystem fileSystem = null;
 	private Configuration configuration = null;
-	
+
 	private static class SingletonHolder {
 		private static final HdfsConn INSTANCE = new HdfsConn();
 	}
@@ -27,11 +27,11 @@ public class HdfsConn {
 	public static FileSystem getFileSystem() {
 		return SingletonHolder.INSTANCE.fileSystem;
 	}
-	
+
 	public static Configuration getConfiguration() {
 		return SingletonHolder.INSTANCE.configuration;
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(getFileSystem());
 	}

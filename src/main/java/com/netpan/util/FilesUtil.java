@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 public class FilesUtil {
 	/**
 	 * 格式化文件大小
+	 * 
 	 * @param fileS
 	 * @return
 	 */
@@ -30,6 +31,7 @@ public class FilesUtil {
 
 	/**
 	 * 获得文件名前缀
+	 * 
 	 * @param fileName
 	 * @return
 	 */
@@ -37,19 +39,21 @@ public class FilesUtil {
 		int splitIndex = fileName.lastIndexOf(".");
 		return fileName.substring(0, splitIndex);
 	}
-	
+
 	/**
 	 * 获得文件名后缀
+	 * 
 	 * @param fileName
 	 * @return
 	 */
-	public static String getFileSufix(String fileName){
+	public static String getFileSufix(String fileName) {
 		int splitIndex = fileName.lastIndexOf(".");
-        return fileName.substring(splitIndex + 1);
+		return fileName.substring(splitIndex + 1);
 	}
-	
+
 	/**
 	 * 文件之间转换格式，不同格式文件之间相互拷贝
+	 * 
 	 * @param inputFile
 	 * @param outputFile
 	 */

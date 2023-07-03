@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.PrefixFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
@@ -28,13 +28,14 @@ import com.netpan.util.Constants;
 import com.netpan.util.DateUtil;
 
 @Service("fileService")
-public class FileServiceImpl implements FileService{
+public class FileServiceImpl implements FileService {
 
 	@Autowired
 	private FileDao fileDao;
-	
+
 	/**
 	 * 获得文件列表，查看文件或目录列表
+	 * 
 	 * @param user
 	 * @param parentid
 	 * @return
@@ -45,10 +46,11 @@ public class FileServiceImpl implements FileService{
 		Filter filter = new PrefixFilter(Bytes.toBytes(user.getId() + "_" + parentid + "_"));
 		ResultScanner resultScanner = fileDao.getResultScannerByUserFile(filter);
 		Iterator<Result> iter = resultScanner.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(!result.isEmpty()) {
-				long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE), Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
+			if (!result.isEmpty()) {
+				long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE),
+						Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
 				if (id > 0) {
 					list.add(fileDao.getById(id));
 				}
@@ -56,9 +58,10 @@ public class FileServiceImpl implements FileService{
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 上传文件
+	 * 
 	 * @param inputStream
 	 * @param file
 	 * @param user
@@ -72,9 +75,10 @@ public class FileServiceImpl implements FileService{
 		System.out.println(rowkey);
 		fileDao.addUserFile(user, parentid, rowkey);
 	}
-	
+
 	/**
 	 * 创建文件夹
+	 * 
 	 * @param file
 	 * @param user
 	 * @param parentid
@@ -85,9 +89,10 @@ public class FileServiceImpl implements FileService{
 		long rowkey = fileDao.addFileInfo(file);
 		fileDao.addUserFile(user, parentid, rowkey);
 	}
-	
+
 	/**
 	 * 获得面包屑导航
+	 * 
 	 * @param dir
 	 * @return
 	 */
@@ -95,14 +100,14 @@ public class FileServiceImpl implements FileService{
 	public List<File> getBreadcrumb(String dir) {
 		List<File> breadcrumblist = new ArrayList<File>();
 		String[] breadcrumbArray = dir.split("/");
-		
+
 		File file = new File();
 		file.setId(0);
 		file.setOriginalName("根目录");
 		file.setPath("/");
 		file.setOriginalPath("/");
 		breadcrumblist.add(file);
-		
+
 		if (breadcrumbArray.length > 0) {
 			for (int i = 1; i < breadcrumbArray.length; i++) {
 				String path = "";
@@ -117,33 +122,41 @@ public class FileServiceImpl implements FileService{
 		}
 		return breadcrumblist;
 	}
-	
+
 	/**
 	 * 获得匹配相同路径的file信息，用于补充面包屑导航
+	 * 
 	 * @param path
 	 * @return
 	 */
 	private File getResultByPath(String path) {
-		Filter filter = new SingleColumnValueFilter(Bytes.toBytes(Constants.FAMILY_FILE_FILE), Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[5]), CompareFilter.CompareOp.EQUAL, new BinaryComparator(Bytes.toBytes(path)));
+		Filter filter = new SingleColumnValueFilter(Bytes.toBytes(Constants.FAMILY_FILE_FILE),
+				Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[5]), CompareOperator.EQUAL,
+				new BinaryComparator(Bytes.toBytes(path)));
 		((SingleColumnValueFilter) filter).setFilterIfMissing(true);
 		ResultScanner resultScanner = fileDao.getResultScannerByFile(filter);
 		Iterator<Result> iter = resultScanner.iterator();
 		File file = null;
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(Bytes.toBoolean(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE), Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[3])))) {
+			if (Bytes.toBoolean(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE),
+					Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[3])))) {
 				file = new File();
 				file.setId(Bytes.toLong(result.getRow()));
-				file.setOriginalName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE), Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[0]))));
-				file.setPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE), Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[5]))));
-				file.setOriginalPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE), Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[6]))));
+				file.setOriginalName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE),
+						Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[0]))));
+				file.setPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE),
+						Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[5]))));
+				file.setOriginalPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_FILE_FILE),
+						Bytes.toBytes(Constants.COLUMN_FILE_ORIGINALNAMEANDETC[6]))));
 			}
 		}
 		return file;
 	}
-	
+
 	/**
 	 * 在删除文件或目录时根据id获得文件或目录信息
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -151,26 +164,28 @@ public class FileServiceImpl implements FileService{
 	public File getFileInfoById(long id) {
 		return fileDao.getById(id);
 	}
-	
+
 	/**
 	 * 递归删除file表和user_file表的文件信息，删除文件或目录时使用
+	 * 
 	 * @param user
 	 * @param file
 	 * @param parentid
 	 */
 	@Override
 	public void deleteInfoRecursion(User user, File file, long parentid) {
-		if(file.getType().equals("D")) {
+		if (file.getType().equals("D")) {
 			Filter filter = new PrefixFilter(Bytes.toBytes(user.getId() + "_" + file.getId() + "_"));
 			ResultScanner resultScanner = fileDao.getResultScannerByUserFile(filter);
 			Iterator<Result> iter = resultScanner.iterator();
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				Result result = iter.next();
-				if(!result.isEmpty()) {
-					long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE), Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
+				if (!result.isEmpty()) {
+					long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE),
+							Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
 					if (id > 0) {
 						File subFile = fileDao.getById(id);
-						if(subFile.getType().equals("D")) {
+						if (subFile.getType().equals("D")) {
 							deleteInfoRecursion(user, subFile, file.getId());
 						}
 						fileDao.deleteUserFile(user, subFile, file.getId());
@@ -182,9 +197,10 @@ public class FileServiceImpl implements FileService{
 		fileDao.deleteUserFile(user, file, parentid);
 		fileDao.deleteFileInfo(file);
 	}
-	
+
 	/**
 	 * 删除hdfs中的文件，删除文件或目录时使用
+	 * 
 	 * @param user
 	 * @param file
 	 */
@@ -192,9 +208,10 @@ public class FileServiceImpl implements FileService{
 	public void deleteHdfs(User user, File file) {
 		fileDao.deleteFileOrFolder(file, user);
 	}
-	
+
 	/**
 	 * 重命名文件或目录
+	 * 
 	 * @param file
 	 * @param newname
 	 */
@@ -202,26 +219,28 @@ public class FileServiceImpl implements FileService{
 	public void rename(File file, String newname) {
 		fileDao.renameFileOrFolderInfo(file, newname);
 	}
-	
+
 	/**
 	 * 获得某一个父目录下的所有子目录，用于复制或移动时显示面包树
+	 * 
 	 * @param user
 	 * @param parentid
 	 * @return
 	 */
 	@Override
-	public List<Node> getTreeFile(User user, long parentid){
+	public List<Node> getTreeFile(User user, long parentid) {
 		List<Node> nodeList = new ArrayList<Node>();
 		Filter filter = new PrefixFilter(Bytes.toBytes(user.getId() + "_" + parentid + "_"));
 		ResultScanner resultScanner = fileDao.getResultScannerByUserFile(filter);
 		Iterator<Result> iter = resultScanner.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(!result.isEmpty()) {
-				long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE), Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
+			if (!result.isEmpty()) {
+				long id = Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE),
+						Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
 				if (id > 0) {
 					File file = fileDao.getById(id);
-					if(file!=null&&file.isDir()) {
+					if (file != null && file.isDir()) {
 						Node node = new Node();
 						node.setId(file.getId());
 						node.setText(file.getOriginalName());
@@ -232,9 +251,10 @@ public class FileServiceImpl implements FileService{
 		}
 		return nodeList;
 	}
-	
+
 	/**
 	 * 下载文件
+	 * 
 	 * @param user
 	 * @param file
 	 * @param local
@@ -248,42 +268,44 @@ public class FileServiceImpl implements FileService{
 	public ResponseEntity<InputStreamResource> downloadFile(User user, File file) {
 		return fileDao.downloadFile(user, file);
 	}
-	
+
 	/**
 	 * 递归复制file表和user_file表的文件信息，复制文件或目录时使用
+	 * 
 	 * @param user
 	 * @param sourceFile
 	 * @param destPath
 	 */
 	@Override
 	public void copyInfoRecursion(User user, File sourceFile, long destid, String destPath) {
-		if(destPath.equals("/")) {
+		if (destPath.equals("/")) {
 			sourceFile.setPath(destPath + sourceFile.getName());
-		}else {
+		} else {
 			sourceFile.setPath(destPath + "/" + sourceFile.getName());
 		}
 		sourceFile.setDate(DateUtil.DateToString("yyyy-MM-dd HH:mm:ss", new Date()));
 		long rowkey = fileDao.addFileInfo(sourceFile);
 		fileDao.addUserFile(user, destid, rowkey);
-		if(sourceFile.getType().equals("D")) {
+		if (sourceFile.getType().equals("D")) {
 			Filter sourceFilter = new PrefixFilter(Bytes.toBytes(user.getId() + "_" + sourceFile.getId() + "_"));
 			ResultScanner sourceResultScanner = fileDao.getResultScannerByUserFile(sourceFilter);
 			Iterator<Result> sourceIter = sourceResultScanner.iterator();
-			while(sourceIter.hasNext()) {
+			while (sourceIter.hasNext()) {
 				Result sourceResult = sourceIter.next();
-				if(!sourceResult.isEmpty()) {
-					long id = Bytes.toLong(sourceResult.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE), Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
+				if (!sourceResult.isEmpty()) {
+					long id = Bytes.toLong(sourceResult.getValue(Bytes.toBytes(Constants.FAMILY_USERFILE_FILE),
+							Bytes.toBytes(Constants.COLUMN_USERFILE_FILEID)));
 					if (id > 0) {
 						File subsourceFile = fileDao.getById(id);
-						if(sourceFile.getPath().equals("/")) {
+						if (sourceFile.getPath().equals("/")) {
 							subsourceFile.setPath(sourceFile.getPath() + subsourceFile.getName());
-						}else {
+						} else {
 							subsourceFile.setPath(sourceFile.getPath() + "/" + subsourceFile.getName());
 						}
 						subsourceFile.setDate(DateUtil.DateToString("yyyy-MM-dd HH:mm:ss", new Date()));
 						long subrowkey = fileDao.addFileInfo(subsourceFile);
 						fileDao.addUserFile(user, rowkey, subrowkey);
-						if(subsourceFile.getType().equals("D")) {
+						if (subsourceFile.getType().equals("D")) {
 							copyInfoRecursion(user, subsourceFile, rowkey, sourceFile.getPath());
 						}
 					}
@@ -291,9 +313,10 @@ public class FileServiceImpl implements FileService{
 			}
 		}
 	}
-	
+
 	/**
 	 * 复制或者移动hdfs中的文件，复制与移动文件或目录时使用
+	 * 
 	 * @param sourceFile
 	 * @param destFile
 	 * @param flag
@@ -302,5 +325,5 @@ public class FileServiceImpl implements FileService{
 	public void copyOrMoveHdfs(User user, File sourceFile, File destFile, boolean flag) {
 		fileDao.copyOrMoveFile(user, sourceFile, destFile, flag);
 	}
-	
+
 }

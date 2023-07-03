@@ -23,12 +23,13 @@ import com.netpan.util.Constants;
 public class ShareServiceImpl implements ShareService {
 	@Autowired
 	private ShareDao shareDao;
-	
+
 	@Autowired
 	private UserDao userDao;
-	
+
 	/**
 	 * 添加分享
+	 * 
 	 * @param user
 	 * @param share
 	 * @param shareedUserId
@@ -42,9 +43,10 @@ public class ShareServiceImpl implements ShareService {
 		long rowKey = shareDao.addShare(user, share);
 		shareDao.addShareed(user, shareedUserId, rowKey);
 	}
-	
+
 	/**
 	 * 获得我的分享
+	 * 
 	 * @param user
 	 * @return
 	 */
@@ -54,27 +56,37 @@ public class ShareServiceImpl implements ShareService {
 		Filter filter = new PrefixFilter(Bytes.toBytes(user.getId() + "_"));
 		ResultScanner resultScanner = shareDao.getResultScannerByShare(filter);
 		Iterator<Result> iter = resultScanner.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(!result.isEmpty()) {
+			if (!result.isEmpty()) {
 				Share share = new Share();
-				share.setPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[0]))));
-				share.setOriginalPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[1]))));
-				share.setType(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[2]))));
-				share.setName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[3]))));
-				share.setSharetime(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[4]))));
-				share.setShareedUserId(Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[5]))));
-				share.setShareedUserName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[6]))));
-				share.setShareid(Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[7]))));
-				share.setShareUserName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT), Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[8]))));
+				share.setPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[0]))));
+				share.setOriginalPath(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[1]))));
+				share.setType(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[2]))));
+				share.setName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[3]))));
+				share.setSharetime(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[4]))));
+				share.setShareedUserId(Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[5]))));
+				share.setShareedUserName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[6]))));
+				share.setShareid(Bytes.toLong(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[7]))));
+				share.setShareUserName(Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHARE_CONTENT),
+						Bytes.toBytes(Constants.COLUMN_SHARE_DIRTYPEPATHANDETC[8]))));
 				list.add(share);
 			}
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 获得我收到的分享
+	 * 
 	 * @param user
 	 * @return
 	 */
@@ -84,10 +96,11 @@ public class ShareServiceImpl implements ShareService {
 		Filter filter = new PrefixFilter(Bytes.toBytes(user.getId() + "_"));
 		ResultScanner resultScanner = shareDao.getResultScannerByShareed(filter);
 		Iterator<Result> iter = resultScanner.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(!result.isEmpty()) {
-				String rowkey = Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHAREED_SHAREID), Bytes.toBytes(Constants.COLUMN_SHAREED_SHAREID)));
+			if (!result.isEmpty()) {
+				String rowkey = Bytes.toString(result.getValue(Bytes.toBytes(Constants.FAMILY_SHAREED_SHAREID),
+						Bytes.toBytes(Constants.COLUMN_SHAREED_SHAREID)));
 				if (!rowkey.isEmpty()) {
 					list.add(shareDao.getShareInfoByRowkey(rowkey));
 				}
@@ -95,9 +108,10 @@ public class ShareServiceImpl implements ShareService {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 删除我的分享
+	 * 
 	 * @param user
 	 * @param shareid
 	 */
@@ -107,5 +121,5 @@ public class ShareServiceImpl implements ShareService {
 		shareDao.deleteShare(user, shareid);
 		shareDao.deleteShareed(user, share.getShareedUserId(), shareid);
 	}
-	
+
 }

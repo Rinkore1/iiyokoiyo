@@ -10,10 +10,10 @@ import com.netpan.util.MD5Util;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
-	
+
 	@Autowired
 	private UserDao userDao;
-	
+
 	/**
 	 * 添加用户或注册用户
 	 */
@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
 		user.setPwd(MD5Util.encodePwd(user.getPwd()));
 		userDao.addUser(user);
 	}
-	
+
 	/**
 	 * 检测邮箱是否重复
 	 */
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 	public boolean checkEmail(String email) {
 		return userDao.checkEmail(email);
 	}
-	
+
 	/**
 	 * 检测姓名是否重复
 	 */
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 	public boolean checkName(String name) {
 		return userDao.checkName(name);
 	}
-	
+
 	/**
 	 * 登录判断用户名与密码
 	 */
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 		long id = userDao.getIdByName(user.getName());
 		if (id > 0) {
 			User user2 = userDao.getById(id);
-			if (user2!=null && MD5Util.isPwdRight(user.getPwd(), user2.getPwd())) {
+			if (user2 != null && MD5Util.isPwdRight(user.getPwd(), user2.getPwd())) {
 				user.setId(id);
 				user.setEmail(user2.getEmail());
 				return 1;
@@ -58,5 +58,5 @@ public class UserServiceImpl implements UserService {
 			return -1;
 		}
 	}
-	
+
 }

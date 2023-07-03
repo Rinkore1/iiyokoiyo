@@ -22,16 +22,17 @@ import net.sf.json.JSONObject;
 public class FollowController {
 	@Resource
 	private FollowService followService;
-	
+
 	/**
 	 * 获得关注人姓名与ID列表同时搜索用户
+	 * 
 	 * @param httpSession
 	 * @param searchName
 	 * @return
 	 */
 	@RequestMapping("/followList.do")
-	public ModelAndView followList(HttpSession httpSession, 
-			@RequestParam(value="name", defaultValue="") String searchName) {
+	public ModelAndView followList(HttpSession httpSession,
+			@RequestParam(value = "name", defaultValue = "") String searchName) {
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		List<String> followList = followService.getFollowUser(user);
 		List<String> userList = followService.searchUser(user, searchName);
@@ -41,17 +42,18 @@ public class FollowController {
 		modelAndView.addObject("searchName", searchName);
 		return modelAndView;
 	}
-	
+
 	/**
 	 * 关注某个用户
+	 * 
 	 * @param httpSession
 	 * @param response
 	 * @param followName
 	 * @return
 	 */
 	@RequestMapping("/followUser.do")
-	public ModelAndView followUser(HttpSession httpSession, HttpServletResponse response, 
-			@RequestParam(value="name") String followName) {
+	public ModelAndView followUser(HttpSession httpSession, HttpServletResponse response,
+			@RequestParam(value = "name") String followName) {
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		JSONObject result = new JSONObject();
 		try {
@@ -66,17 +68,18 @@ public class FollowController {
 		ResponseUtil.write(response, result);
 		return null;
 	}
-	
+
 	/**
 	 * 取消关注
+	 * 
 	 * @param httpSession
 	 * @param response
 	 * @param unfollowName
 	 * @return
 	 */
 	@RequestMapping("/unfollowUser.do")
-	public ModelAndView unfollowUser(HttpSession httpSession, HttpServletResponse response, 
-			@RequestParam(value="name") String unfollowName ) {
+	public ModelAndView unfollowUser(HttpSession httpSession, HttpServletResponse response,
+			@RequestParam(value = "name") String unfollowName) {
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		JSONObject result = new JSONObject();
 		try {
@@ -91,15 +94,16 @@ public class FollowController {
 		ResponseUtil.write(response, result);
 		return null;
 	}
-	
+
 	/**
 	 * 分享中获得所关注的用户
+	 * 
 	 * @param httpSession
 	 * @return
 	 */
 	@RequestMapping("/getFollowUser.do")
-	public ModelAndView getFollowUser(HttpSession httpSession, 
-			@RequestParam(value="ids") String ids) {
+	public ModelAndView getFollowUser(HttpSession httpSession,
+			@RequestParam(value = "ids") String ids) {
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		List<String> followList = followService.getFollowUser(user);
 		ModelAndView modelAndView = new ModelAndView("/cloud/share_getfollow");
@@ -107,5 +111,5 @@ public class FollowController {
 		modelAndView.addObject("ids", ids);
 		return modelAndView;
 	}
-	
+
 }

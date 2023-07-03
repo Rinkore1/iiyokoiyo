@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
@@ -25,12 +25,13 @@ import com.netpan.service.FollowService;
 public class FollowServiceImpl implements FollowService {
 	@Autowired
 	private FollowDao followDao;
-	
+
 	@Autowired
 	private UserDao userDao;
-	
+
 	/**
 	 * 得到所关注的用户姓名和id
+	 * 
 	 * @param user
 	 * @return
 	 */
@@ -38,46 +39,48 @@ public class FollowServiceImpl implements FollowService {
 	public List<String> getFollowUser(User user) {
 		List<String> followList = new ArrayList<String>();
 		Result result = followDao.getFollow(user);
-		if(!result.isEmpty()) {
+		if (!result.isEmpty()) {
 			for (Cell cell : result.listCells()) {
 				followList.add(Bytes.toString(CellUtil.cloneValue(cell)));
-	        }
+			}
 		}
 		return followList;
 	}
-	
+
 	/**
 	 * 获得搜索用户
+	 * 
 	 * @param user
 	 * @param searchName
 	 * @return
 	 */
 
-	public List<String> searchUser(User user, String searchName){
+	public List<String> searchUser(User user, String searchName) {
 		List<String> followList = getFollowUser(user);
 		List<String> userList = new ArrayList<String>();
-		Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL, new SubstringComparator(searchName));
+		Filter filter = new RowFilter(CompareOperator.EQUAL, new SubstringComparator(searchName));
 		ResultScanner resultScanner;
-		if(searchName.equals("")||searchName.isEmpty()) {
+		if (searchName.equals("") || searchName.isEmpty()) {
 			resultScanner = followDao.getResultScannerByUserId(null);
-		}else {
+		} else {
 			resultScanner = followDao.getResultScannerByUserId(filter);
 		}
 		Iterator<Result> iter = resultScanner.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Result result = iter.next();
-			if(!result.isEmpty()) {
+			if (!result.isEmpty()) {
 				String name = Bytes.toString(result.getRow());
-				if((!name.equals(user.getName()))&&(!followList.contains(name))) {
+				if ((!name.equals(user.getName())) && (!followList.contains(name))) {
 					userList.add(name);
 				}
 			}
 		}
 		return userList;
 	}
-	
+
 	/**
 	 * 添加关注用户
+	 * 
 	 * @param user
 	 * @param followName
 	 */
@@ -87,9 +90,10 @@ public class FollowServiceImpl implements FollowService {
 		followDao.addFollow(user, followId, followName);
 		followDao.addFollowed(user, followId);
 	}
-	
+
 	/**
 	 * 取消关注
+	 * 
 	 * @param user
 	 * @param unfollowName
 	 */
@@ -99,5 +103,5 @@ public class FollowServiceImpl implements FollowService {
 		followDao.cancelFollow(user, unfollowId);
 		followDao.cancelFollowed(user, unfollowId);
 	}
-	
+
 }

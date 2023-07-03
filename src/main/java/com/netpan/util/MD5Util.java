@@ -13,6 +13,7 @@ public class MD5Util {
 
 	/**
 	 * 根据用户id和用户输入的原始密码，进行MD5加密
+	 * 
 	 * @param userId
 	 * @param userPwd
 	 * @return 加密后的字符串
@@ -23,6 +24,7 @@ public class MD5Util {
 
 	/**
 	 * 判断用户输入的密码是否正确
+	 * 
 	 * @param userId：用户id
 	 * @param userPwd：当前输入的密码
 	 * @param dbPwd：数据库中存储的密码

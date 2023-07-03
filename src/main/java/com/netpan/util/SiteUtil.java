@@ -5,8 +5,8 @@ import java.util.Properties;
 
 public class SiteUtil {
 	private static Properties properties = new Properties();
-	
-	static{
+
+	static {
 		try {
 			properties.load(SiteUtil.class.getClassLoader().getResourceAsStream("officeToSwf.properties"));
 		} catch (IOException e) {
@@ -14,7 +14,7 @@ public class SiteUtil {
 		}
 	}
 
-	public static String readUrl(String key){
-		return (String)properties.get(key);
+	public static String readUrl(String key) {
+		return (String) properties.get(key);
 	}
 }

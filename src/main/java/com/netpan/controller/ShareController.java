@@ -27,12 +27,13 @@ import net.sf.json.JSONObject;
 public class ShareController {
 	@Resource
 	private ShareService shareService;
-	
+
 	@Resource
 	private FileService fileService;
-	
+
 	/**
 	 * 我的分享
+	 * 
 	 * @param httpSession
 	 * @return
 	 */
@@ -44,9 +45,10 @@ public class ShareController {
 		modelAndView.addObject("shareList", shareList);
 		return modelAndView;
 	}
-	
+
 	/**
 	 * 收到分享
+	 * 
 	 * @param httpSession
 	 * @return
 	 */
@@ -58,9 +60,10 @@ public class ShareController {
 		modelAndView.addObject("shareedList", shareedList);
 		return modelAndView;
 	}
-	
+
 	/**
 	 * 分享文件
+	 * 
 	 * @param httpSession
 	 * @param response
 	 * @param ids
@@ -68,9 +71,9 @@ public class ShareController {
 	 * @return
 	 */
 	@RequestMapping("/shareFile.do")
-	public ModelAndView shareFile(HttpSession httpSession, HttpServletResponse response, 
-			@RequestParam(value="ids") String ids, 
-			@RequestParam(value="names") String names) {
+	public ModelAndView shareFile(HttpSession httpSession, HttpServletResponse response,
+			@RequestParam(value = "ids") String ids,
+			@RequestParam(value = "names") String names) {
 		JSONObject result = new JSONObject();
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		try {
@@ -84,7 +87,7 @@ public class ShareController {
 				share.setType(file.getType());
 				share.setName(file.getOriginalName());
 				share.setSharetime(DateUtil.DateToString("yyyy-MM-dd HH:mm:ss", new Date()));
-				for(int j = 0; j < name.length; j++) {
+				for (int j = 0; j < name.length; j++) {
 					shareService.addShare(user, share, name[j]);
 				}
 			}
@@ -98,17 +101,18 @@ public class ShareController {
 		ResponseUtil.write(response, result);
 		return null;
 	}
-	
+
 	/**
 	 * 删除我的分享
+	 * 
 	 * @param httpSession
 	 * @param response
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping("/deleteShare.do")
-	public ModelAndView deleteShare(HttpSession httpSession, HttpServletResponse response, 
-			@RequestParam(value="ids") String ids) {
+	public ModelAndView deleteShare(HttpSession httpSession, HttpServletResponse response,
+			@RequestParam(value = "ids") String ids) {
 		JSONObject result = new JSONObject();
 		User user = (User) httpSession.getAttribute(Constants.currentUserSessionKey);
 		try {
@@ -126,5 +130,5 @@ public class ShareController {
 		ResponseUtil.write(response, result);
 		return null;
 	}
-	
+
 }

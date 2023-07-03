@@ -10,9 +10,10 @@ import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConne
 import com.artofsolving.jodconverter.openoffice.converter.OpenOfficeDocumentConverter;
 
 public class OfficeToSwf {
-	
+
 	/**
 	 * 利用openoffice普通文件转换为pdf文件
+	 * 
 	 * @param generalFile
 	 * @param pdfFile
 	 */
@@ -20,19 +21,20 @@ public class OfficeToSwf {
 		try {
 			File sourceFile = new File(generalFile);
 			File targetFile = new File(pdfFile);
-			
-			if(sourceFile.exists()) {
+
+			if (sourceFile.exists()) {
 				return;
 			}
 			if (targetFile.exists()) {
 				return;
 			}
-			if(FilesUtil.getFileSufix(generalFile).equals("swf")) {
+			if (FilesUtil.getFileSufix(generalFile).equals("swf")) {
 				return;
 			}
-			
+
 			// 启动OpenOffice的服务
-			String command = SiteUtil.readUrl("openoffice") + "program\\soffice.exe -headless -accept=\"socket,host=127.0.0.1,port=8100;urp;\"";
+			String command = SiteUtil.readUrl("openoffice")
+					+ "program\\soffice.exe -headless -accept=\"socket,host=127.0.0.1,port=8100;urp;\"";
 			Process pro = Runtime.getRuntime().exec(command);
 			// 连接到运行在8100端口的openoffice的一个实例
 			OpenOfficeConnection connection = new SocketOpenOfficeConnection("127.0.0.1", 8100);
@@ -51,9 +53,10 @@ public class OfficeToSwf {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 利用pdf2swf.exe将pdf文件转换为swf文件
+	 * 
 	 * @param pdfFile
 	 * @param swfFile
 	 */
@@ -74,7 +77,7 @@ public class OfficeToSwf {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		convertToPdf("F:\\hadoop\\reverse.txt", "F:\\hadoop\\reverse.pdf");
 		pdfConvertSwf("F:\\hadoop\\reverse.pdf", "F:\\hadoop\\reverse.swf");
